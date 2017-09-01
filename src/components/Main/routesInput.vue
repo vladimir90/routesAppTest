@@ -80,8 +80,8 @@
       },
       loadList(){
         let newRoutes = [
-          {id:1,start:'Belgrade',end:'Budapest'},
-          {id:2,start:'Vienna',end:'Berlin'}
+          {id:1,start:'Belgrade',end:'Budapest',distance:'235 mi',duration:''},
+          {id:2,start:'Vienna',end:'Berlin',distance:'397 mi',duration:''}
         ];
         if(!localStorage.getItem('savedRoutes')) {
           localStorage.setItem('savedRoutes', JSON.stringify(newRoutes));
