@@ -14,9 +14,7 @@
             <li>{{data}}</li>
           </ul>
         </div>
-
       <hr>
-
       </div>
     <div class="columns">
       <div class="column">
@@ -25,7 +23,10 @@
         <a class="button is-primary"
            @click="saveRoute()"
             v-if="!loading">Save Route</a>
-        <a class="button is-loading" v-else>Save Route</a>
+        <div v-else>
+          <a class="button is-loading">Save Route</a>
+          <p class="has-text-grey-light">Waiting for response...</p>
+        </div>
       </div>
     </div>
     <div class="columns">
@@ -64,8 +65,10 @@
     methods:{
       updateLocalStorage(){
         let storageRoutes = JSON.parse(localStorage.getItem('savedRoutes'));
-        let start = this.start[0].split(',').splice(0,1).join();
-        let end = this.end[0].split(',').splice(0,1).join();
+        let start =  this.filterCountryFromString(this.start[0]);
+        let end = this.filterCountryFromString(this.end[0]);
+        let duration = this.duration.text;
+        let distance = this.distance;
         let lastId = storageRoutes.map(item=>{
           return item.id;
         });
@@ -74,7 +77,9 @@
         let newRoute = {
           id,
           start,
-          end
+          end,
+          duration,
+          distance
         };
         storageRoutes.push(newRoute);
         localStorage.removeItem('savedRoutes');
@@ -83,7 +88,6 @@
       saveRoute(){
         this.updateLocalStorage();
         router.push('/');
-        console.log(end);
       },
       getDistance(start,end,apiKey){
         this.config = {
@@ -95,17 +99,26 @@
         let _this = this;
         axios.get('https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='+start+'&destinations='+end+'&key='+apiKey,this.config)
           .then(function (response) {
-              _this.start = response.data.origin_addresses;
-              _this.end = response.data.destination_addresses;
-              let elements = response.data.rows[0].elements[0];
-              _this.distance = elements.distance;
-              _this.duration = elements.duration;
-               _this.loading = false;
-              console.log(response);
+              _this.responseController(response);
           })
           .catch(function (error) {
-            console.log(error)
+              _this.errorController(error);
           });
+      },
+      errorController(error){
+        console.log(error);
+      },
+      responseController(response){
+          this.start = response.data.origin_addresses;
+          this.end = response.data.destination_addresses;
+          let elements = response.data.rows[0].elements[0];
+          this.distance = elements.distance;
+          this.duration = elements.duration;
+          this.loading = false;
+          console.log(response);
+      },
+      filterCountryFromString(string){
+        return string.split(',').splice(0,1).join();
       },
       capitalize(string){
         return string.substring(0,1).toUpperCase() + string.substring(1).toLowerCase();
