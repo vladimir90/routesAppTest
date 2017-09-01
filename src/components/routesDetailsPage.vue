@@ -22,7 +22,10 @@
       <div class="column">
         <p v-if="duration" class="title">Duration:{{duration.text}}</p>
         <p v-if="distance">Distance:{{distance.text}}</p>
-        <a class="button is-primary" @click="saveRoute()">Save Route</a>
+        <a class="button is-primary"
+           @click="saveRoute()"
+            v-if="!loading">Save Route</a>
+        <a class="button is-loading" v-else>Save Route</a>
       </div>
     </div>
     <div class="columns">
@@ -30,10 +33,11 @@
         <iframe
           v-if="distance"
           width="90%"
-          height="400"
-          frameborder="0" style="border:0"
+          height="500"
+          frameborder="0" style="border:1"
           :src="mapUrl" allowfullscreen>
         </iframe>
+
       </div>
     </div>
 
@@ -46,6 +50,7 @@
   import router from '../router';
   export default {
     created(){
+      this.loading = true;
       let routeData = this.$route.params.dest;
       routeData = routeData.replace('-',' ').split(' ');
       let startData = this.capitalize(routeData[0]);
@@ -53,7 +58,6 @@
       //provide apiKeys for service
       let apiKeyDistance = 'AIzaSyBt4GHOo9edsGYvGwMn4nFkq3y488jVogE';
       let apiKeyMap = 'AIzaSyDpFDeUR9ppNzXpOb26T0pmpSLytkckWRc';
-
       this.getDistance(startData,endData,apiKeyDistance);
       this.mapUrl = this.generateMapUrl(startData,endData,apiKeyMap);
     },
@@ -96,6 +100,7 @@
               let elements = response.data.rows[0].elements[0];
               _this.distance = elements.distance;
               _this.duration = elements.duration;
+               _this.loading = false;
               console.log(response);
           })
           .catch(function (error) {
@@ -112,6 +117,7 @@
     },
     data () {
       return{
+        loading:true,
         mapUrl:null,
         distance:null,
         duration:null,

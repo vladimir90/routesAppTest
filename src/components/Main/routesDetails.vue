@@ -46,7 +46,6 @@
         }
       },
       removeFromStorage(){
-        this.$emit('clear');
         this.storedRoutes = null;
         localStorage.removeItem('savedRoutes');
       }

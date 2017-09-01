@@ -6,19 +6,30 @@
               <div class="field">
                 <label class="label">From</label>
                 <div class="control">
-                  <input class="input" type="text" placeholder="Enter the city" v-model="newRoute.start">
+                  <input class="input"
+                         type="text"
+                         placeholder="Enter the city"
+                         v-model="newRoute.start"
+                         :value="this.newRoute.start"
+                         >
                 </div>
-                <!--<p class="help">This is a help text</p>-->
+                <p class="help is-danger" v-if="error.start">{{error.start}}</p>
               </div>
               <div class="field">
                 <label class="label">To</label>
                 <div class="control">
-                  <input class="input" type="text" placeholder="Enter the city" v-model="newRoute.end">
+                  <input class="input"
+                         type="text"
+                         placeholder="Enter the city"
+                         v-model="newRoute.end"
+                        >
                 </div>
-                <!--<p class="help">This is a help text</p>-->
+                <p class="help is-danger" v-if="error.end">{{error.end}}</p>
               </div>
               <div class="field">
-                <a class="button" @click="goToDetails(newRoute.start,newRoute.end)">Go</a>
+                <transition name="fade">
+                  <button class="button" @click="goToDetails(newRoute.start,newRoute.end)" v-show="toggle()">Go</button>
+                </transition>
               </div>
               <RoutesDetailsView :routeData="routeData" @clear="clear = true"></RoutesDetailsView>
         </div>
@@ -40,6 +51,10 @@
     data () {
       return{
         clear:false,
+        error:{
+          start:null,
+          end:null
+        },
         newRoute:{
           start:null,
           end:null
@@ -49,12 +64,19 @@
       }
     },
     created(){
-      console.log(this.clear);
-      if(!this.clear) this.loadList();
+       this.loadList();
     },
     methods:{
       goToDetails(start,end){
+        if(!this.error.start && !this.error.end)
         router.push('details/' + start + "-" + end);
+      },
+      toggle(){
+        if(this.newRoute.start && this.newRoute.end){
+          return true;
+        }else{
+          return false;
+        }
       },
       loadList(){
         let newRoutes = [
@@ -75,5 +97,10 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0
+  }
 </style>
